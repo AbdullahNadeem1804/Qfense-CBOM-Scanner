@@ -30,16 +30,24 @@ QFense was built as an independent research tool to solve this discovery bottlen
   python QFense-CBOM-Scanner.py
   ```
 
-Example Terminal Output
-When run against a target, the scanner will flag vulnerable imports and line numbers directly in the terminal before generating the final JSON artifact:
+### Example Terminal Output
+When run against a target, the scanner will extract the vulnerable code snippet and map it to the specific NIST remediation standard before generating the final JSON artifact:
 
-
+```text
 Scanning ./certbot for cryptographic assets...
 
-[!] Python Vulnerability Found: RSA in ./certbot/acme/examples/http01_example.py (Line 33)
-[!] Python Vulnerability Found: EC in ./certbot/certbot/src/certbot/crypto_util.py (Line 23)
+[🚨] PQC-VIOLATION DETECTED: RSA Cryptography
+ ├─ Target:  ./certbot/acme/examples/http01_example.py:33
+ ├─ Context: `from cryptography.hazmat.primitives.asymmetric import rsa`
+ └─ Threat:  Integer Factorization Risk. Migrate to FIPS 203 (ML-KEM).
 
-Found 16 assets. CBOM saved to qfense_cbom.json
+[🚨] PQC-VIOLATION DETECTED: EC Cryptography
+ ├─ Target:  ./certbot/certbot/src/certbot/crypto_util.py:23
+ ├─ Context: `from cryptography.hazmat.primitives.asymmetric import ec`
+ └─ Threat:  Discrete Log Risk. Migrate to FIPS 204 (ML-DSA).
+
+... and 14 more legacy assets suppressed for terminal readability.
+```
 
 ## Remediation & Outreach
 Generating a CBOM is only the first step. Safely replacing legacy encryption with NIST-approved PQC algorithms (like ML-KEM) requires careful integration to avoid breaking existing system architecture.
